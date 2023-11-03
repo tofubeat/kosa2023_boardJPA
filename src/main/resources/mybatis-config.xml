@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<settings>
+	<setting name="mapUnderscoreToCamelCase" value="true"/>
+	<setting name="jdbcTypeForNull" value="NULL"/>
+	<!-- ㄴjava에서의 널값을 DB에서 무슨 값으로 쓸래? value에 설정 -->
+</settings>
+<typeAliases>
+<typeAlias type="com.my.board.dto.Board" alias="Board"/><!-- dto별칭설정 -->
+<typeAlias type="com.my.board.dto.Reply" alias="Reply"/>
+</typeAliases>
+ 
+ <mappers>
+    <mapper resource="Board.xml"/>
+ </mappers>
+</configuration>

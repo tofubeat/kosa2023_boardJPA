@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd"> <!--문서유형-->
+<mapper namespace="com.my.board.BoardMapper">
+	<select id="selectAll" resultType="Board">
+		SELECT b.*, 
+    		  (SELECT COUNT(*) FROM board_reply WHERE reply_board_no=b.board_no)replycnt 
+		FROM board  b
+		ORDER BY board_no DESC
+	</select>
+	
+	<resultMap type="Board" id="BoardMap" autoMapping="true">
+		<!-- board타입 객체 만드는 기준 설정, board_no가 다를때만 만들어라 -->
+		<id property="boardNo" column="board_No"/> 
+		<collection property="replies" ofType="Reply" autoMapping="true"/> <!-- property로 지역변수값주기 -->
+	</resultMap>
+	
+	<!-- <select id="selectByBoardNo" parameterType="int" resultType="Board"> board1에 reply4개니까-->
+	<select id="selectByBoardNo" resultMap="BoardMap">
+		SELECT *
+		FROM board b LEFT JOIN 
+			(SELECT level,r1.* 
+			 FROM board_reply r1 
+			 START WITH reply_parent_no IS NULL 
+			 CONNECT BY PRIOR reply_no = reply_parent_no 
+			 ORDER SIBLINGS BY reply_no DESC)r 
+			 ON b.board_no = r.reply_board_no
+		WHERE board_no = #{boardNo}
+	</select>
+	
+	<insert id="insertBoard" parameterType="Board">
+		INSERT INTO board(board_no, board_title, board_content, board_id) 
+		VALUES(board_seq.NEXTVAL, #{boardTitle}, #{boardContent}, #{boardId})
+	</insert>
+	
+	<update id="updateBoard" parameterType="Board">
+		UPDATE board
+		SET board_content=#{boardContent}
+		WHERE board_no=#{boardNo} and board_id=#{boardId}
+	</update>
+	
+	<delete id="deleteBoard" parameterType="Board">
+		DELETE FROM board
+		WHERE board_no=#{boardNo}
+	</delete>
+	
+	<insert id="insertReply" parameterType="Reply">
+		INSERT INTO board_reply(reply_no, reply_board_no, reply_parent_no, reply_content, reply_id) 
+		VALUES(reply_seq.NEXTVAL, #{replyBoardNo}, #{replyParentNo}, #{replyContent}, #{replyId})
+	</insert>
+	
+	<update id="updateReply" parameterType="Reply">
+		UPDATE board_reply
+		SET reply_content=#{replyContent}
+		WHERE reply_no=#{replyNo}
+	</update>
+	
+	<delete id="deleteReply" parameterType="Reply">
+		DELETE FROM board_reply
+		WHERE reply_no=#{replyNo}
+	</delete>
+	
+</mapper>
